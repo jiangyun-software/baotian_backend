@@ -9,6 +9,9 @@ import os
 from .detection_model import detection_main
 from django.http import JsonResponse,HttpResponse
 
+def test(request):
+    return HttpResponse("test")
+
 class PostView(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
@@ -36,7 +39,7 @@ class PostView(APIView):
             
             #with open(output_image, 'rb') as f:
             #    image_data = f.read()
-            response_url = os.path.join("http://127.0.0.1:8000/",output_image)
+            response_url = os.path.join("http://jyzn.nat300.top/",output_image)
             
             return HttpResponse(response_url)
             # return HttpResponse(image_data, content_type="image/jpeg")
@@ -55,42 +58,3 @@ class PostView(APIView):
 
 
 
-
-"""
-from django.shortcuts import render
-from django.http import JsonResponse,HttpResponse
-import os
-import shutil
-from .detection_model import detection_main
-
-from django.views.decorators.csrf import csrf_exempt
-
-# Create your views here.
-def detection_api(request):
-    #get the GET parameters
-    input_image = request.GET['image']
-
-    #use the model to get the result
-    os.chdir('C:\\Users\\DELL\\Desktop\\匠韵实习\\demo_server\\demo_server\\detection')
-    detection_result = detection_main(input_image)
-
-
-    #return image
-    imagepath = os.path.join('C:\\Users\\DELL\\Desktop\\匠韵实习\\demo_server\\demo_server\\detection', file_name)  
-    with open(imagepath, 'rb') as f:
-        image_data = f.read()
-
-    return HttpResponse(image_data, content_type="image/jpeg")
-
-
-def test(request):
-    return HttpResponse("test")
-
-
-@csrf_exempt 
-def upload(request):
-    import json
-    #data = json.loads(request.body.decode('utf-8'))
-    data = request.data
-    return HttpResponse(data)
-"""
