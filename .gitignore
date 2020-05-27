@@ -1,4 +1,5 @@
 detection/hololens/
 demo_server/__pycache__
 detection/__pycache__
+detection/migrations/__pycache__
 .vscode
