@@ -4,7 +4,7 @@ services:
     db:
         image: postgres
         environment:
-            POSTGRES_PASSWORD: sanyou1997
+            POSTGRES_PASSWORD: jiangyun123456
     migration:
         build: .
         command: python3 manage.py migrate
