@@ -8,9 +8,22 @@ import os
 # Create your views here.
 from .detection_model import detection_main
 from django.http import JsonResponse,HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from pprint import pprint
+import json
+from .output_json import to_txt_files 
 
+
+server_url = "http://jyzn.nat300.top/"
+annotation_path = './media/annotations/'
+
+@csrf_exempt
 def test(request):
-    return HttpResponse("test")
+    if request.method=="POST":
+        res = request.FILES['file']
+        res = json.load(res)
+        to_txt_files(res,annotation_path)
+    return HttpResponse("succeed")
 
 class PostView(APIView):
     parser_classes = (MultiPartParser, FormParser)
@@ -28,6 +41,7 @@ class PostView(APIView):
             
             #获得本地图片地址
             image = posts_serializer.data["image"][1:]
+            
             #获得图片名称
             dir_path,full_file_name = os.path.split(image)
             file_name, extension = os.path.splitext(full_file_name)
@@ -39,7 +53,7 @@ class PostView(APIView):
             
             #with open(output_image, 'rb') as f:
             #    image_data = f.read()
-            response_url = os.path.join("http://jyzn.nat300.top/",output_image)
+            response_url = os.path.join(server_url,output_image)
             
             return HttpResponse(response_url)
             # return HttpResponse(image_data, content_type="image/jpeg")

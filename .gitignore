@@ -1,4 +1,5 @@
 detection/hololens/
 */__pycache__
-detection/migrations/__pycache__
+detection/migrations
+media/post_images
 .vscode

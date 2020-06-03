@@ -1,0 +1,1 @@
+{"filename": "img (2).png", "size": 144875, "regions": [], "file_attributes": {}}
