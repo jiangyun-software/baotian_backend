@@ -33,16 +33,16 @@ class UploadImageView(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
     def get(self, request, *args, **kwargs):
-        posts = ImageUpload.objects.all()
-        serializer = ImageUploadSerializer(posts, many=True)
+        uploads = ImageUpload.objects.all()
+        serializer = ImageUploadSerializer(uploads, many=True)
         return Response(serializer.data)
-
+    
     def post(self, request, *args, **kwargs):
-        uploads_serializer = PostSerializer(data=request.data)
+        uploads_serializer = ImageUploadSerializer(data=request.data)
         if uploads_serializer.is_valid():
             uploads_serializer.save()
             
-            # return Response(posts_serializer.data)
+            return Response(uploads_serializer.data)
         else:
             print('error', uploads_serializer.errors)
             return Response(uploads_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -68,8 +68,6 @@ class PostView(APIView):
             #获得图片名称
             dir_path,full_file_name = os.path.split(image)
             file_name, extension = os.path.splitext(full_file_name)
-
-
             
             #调用培训好的算法
             detection_result, output_image = detection_main(image,"media/output_images/"+file_name)
