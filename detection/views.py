@@ -1,5 +1,5 @@
-from .serializers import PostSerializer
-from .models import Post
+from .serializers import PostSerializer,ImageUploadSerializer
+from .models import Post,ImageUpload
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
@@ -17,13 +17,36 @@ from .output_json import to_txt_files
 server_url = "http://jyzn.nat300.top/"
 annotation_path = './media/annotations/'
 
-@csrf_exempt
 def test(request):
+    return HttpResponse("succeed")
+
+@csrf_exempt
+def annotation(request):
     if request.method=="POST":
         res = request.FILES['file']
         res = json.load(res)
         to_txt_files(res,annotation_path)
     return HttpResponse("succeed")
+
+
+class UploadImageView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+
+    def get(self, request, *args, **kwargs):
+        posts = ImageUpload.objects.all()
+        serializer = ImageUploadSerializer(posts, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        uploads_serializer = PostSerializer(data=request.data)
+        if uploads_serializer.is_valid():
+            uploads_serializer.save()
+            
+            # return Response(posts_serializer.data)
+        else:
+            print('error', uploads_serializer.errors)
+            return Response(uploads_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class PostView(APIView):
     parser_classes = (MultiPartParser, FormParser)

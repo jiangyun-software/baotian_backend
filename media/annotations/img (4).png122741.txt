@@ -1,1 +1,1 @@
-{"filename": "img (4).png", "size": 122741, "regions": [{"shape_attributes": {"name": "ellipse", "cx": 51, "cy": 166, "rx": 12, "ry": 11, "theta": 0}, "region_attributes": {}}, {"shape_attributes": {"name": "polygon", "all_points_x": [209, 211, 149, 180], "all_points_y": [211, 170, 251, 268]}, "region_attributes": {}}], "file_attributes": {}}
+{"filename": "img (4).png", "size": 122741, "regions": [], "file_attributes": {}}
