@@ -1,5 +1,6 @@
 detection/hololens/
 */__pycache__
+detection/migrations
 media/post_images/*
 media/output_images/*
 media/upload_images/*
