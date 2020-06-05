@@ -1,1 +1,0 @@
-{"filename": "img (2).png", "size": 144875, "regions": [{"shape_attributes": {"name": "ellipse", "cx": 147, "cy": 72, "rx": 18, "ry": 21, "theta": 0}, "region_attributes": {"defect": "B"}}], "file_attributes": {}}

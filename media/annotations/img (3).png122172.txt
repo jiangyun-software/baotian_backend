@@ -1,1 +1,0 @@
-{"filename": "img (3).png", "size": 122172, "regions": [{"shape_attributes": {"name": "circle", "cx": 113, "cy": 225, "r": 29}, "region_attributes": {}}, {"shape_attributes": {"name": "ellipse", "cx": 211, "cy": 203, "rx": 5, "ry": 28, "theta": 0}, "region_attributes": {}}], "file_attributes": {}}
