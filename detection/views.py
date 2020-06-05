@@ -24,9 +24,10 @@ def test(request):
 def annotation(request):
     if request.method=="POST":
         res = request.FILES['file']
-        res = json.load(res)
+        res = res.read().decode('utf8')
+        res = json.loads(res)
         to_txt_files(res,annotation_path)
-    return HttpResponse("succeed")
+    return HttpResponse("成功上传标记数据到"+server_url)
 
 
 class UploadImageView(APIView):

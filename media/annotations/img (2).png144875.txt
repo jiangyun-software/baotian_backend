@@ -1,1 +1,0 @@
-{"filename": "img (2).png", "size": 144875, "regions": [{"shape_attributes": {"name": "circle", "cx": 136, "cy": 78, "r": 35}, "region_attributes": {"defect2": {}}}], "file_attributes": {}}
