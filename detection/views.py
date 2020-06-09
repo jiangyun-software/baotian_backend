@@ -41,7 +41,10 @@ class UploadImageView(APIView):
     def post(self, request, *args, **kwargs):
         uploads_serializer = ImageUploadSerializer(data=request.data)
         if uploads_serializer.is_valid():
-            uploads_serializer.save()
+            if ImageUpload.objects.filter(title=uploads_serializer.validated_data["title"]).exists():
+                print(uploads_serializer.validated_data["title"])
+            else:
+                uploads_serializer.save()
             
             return Response(uploads_serializer.data)
         else:
