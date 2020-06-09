@@ -43,7 +43,7 @@ class UploadImageView(APIView):
         if uploads_serializer.is_valid():
             #only save files that dont exits
             if ImageUpload.objects.filter(title=uploads_serializer.validated_data["title"]).exists():
-                #print(uploads_serializer.validated_data["title"])
+                print(uploads_serializer.validated_data["title"])
             else:
                 uploads_serializer.save()
             
