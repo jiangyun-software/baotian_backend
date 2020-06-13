@@ -8,7 +8,3 @@ def detection_main(input_name,dir_path):
     output_path = dir_path + "_output.png"
     detections = detector.detectObjectsFromImage(input_image= input_name, output_image_path= output_path)
     return (detections,output_path)
-    #for detection in detections:
-
-    
-    #    print(detection["name"], " : ", detection["percentage_probability"], " : ", detection["box_points"])

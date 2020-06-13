@@ -5,8 +5,9 @@ from . import views
 urlpatterns = [
     #path('api/', views.detection_api),
     #path('', views.test),
-    path('posts/', views.PostView.as_view(), name= 'posts_list'),
-    path('uploads/', views.UploadImageView.as_view(), name= 'uploads_list'),
+    path('annotation_image/', views.AnnotationImageView.as_view()),
+    path('image/', views.ImageUploadView.as_view()),
+    path('spreadsheet/', views.SheetUploadView.as_view()),
     path('annotation/', views.annotation),
     path('', views.test),
 

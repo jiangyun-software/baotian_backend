@@ -1,5 +1,5 @@
-from .serializers import PostSerializer,ImageUploadSerializer
-from .models import Post,ImageUpload
+from .serializers import ImageUploadSerializer,SheetUploadSerializer,AnnotaionImageSerializer
+from .models import AnnotationImage,ImageUpload,SheetUpload
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
@@ -20,6 +20,7 @@ annotation_path = './media/annotations/'
 def test(request):
     return HttpResponse("succeed")
 
+#接受标注数据
 @csrf_exempt
 def annotation(request):
     if request.method=="POST":
@@ -29,46 +30,45 @@ def annotation(request):
         to_txt_files(res,annotation_path)
     return HttpResponse("成功上传标记数据到"+server_url)
 
-
-class UploadImageView(APIView):
+#接受标注图片
+class AnnotationImageView(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
     def get(self, request, *args, **kwargs):
-        uploads = ImageUpload.objects.all()
-        serializer = ImageUploadSerializer(uploads, many=True)
+        annotation_images = ImageUpload.objects.all()
+        serializer = AnnotationImageSerializer(annotation_images,many=True)
         return Response(serializer.data)
     
     def post(self, request, *args, **kwargs):
-        uploads_serializer = ImageUploadSerializer(data=request.data)
-        if uploads_serializer.is_valid():
+        annotation_images_serializer = AnnotationImageSerializer(data=request.data)
+        if annotation_images_serializer.is_valid():
             #only save files that dont exits
-            if ImageUpload.objects.filter(title=uploads_serializer.validated_data["title"]).exists():
-                print(uploads_serializer.validated_data["title"])
+            if AnnotationImage.objects.filter(title=annotation_images_serializer.validated_data["title"]).exists():
+                print(annotation_images_serializer.validated_data["title"])
             else:
-                uploads_serializer.save()
+                annotation_images_serializer.save()
             
-            return Response(uploads_serializer.data)
+            return Response(annotation_images_serializer.data)
         else:
-            print('error', uploads_serializer.errors)
-            return Response(uploads_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            print('error', annotation_images_serializer.errors)
+            return Response(annotation_images_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-class PostView(APIView):
+#检测图片
+class ImageUploadView(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
     def get(self, request, *args, **kwargs):
-        posts = Post.objects.all()
-        serializer = PostSerializer(posts, many=True)
+        images = ImageUpload.objects.all()
+        serializer = ImageUploadSerializer(images, many=True)
         return Response(serializer.data)
-
+    
     def post(self, request, *args, **kwargs):
-        posts_serializer = PostSerializer(data=request.data)
-        if posts_serializer.is_valid():
-            #保存到数据库
-            posts_serializer.save()
+        images_serializer = ImageUploadSerializer(data=request.data)
+        if images_serializer.is_valid():
+            images_serializer.save()
             
             #获得本地图片地址
-            image = posts_serializer.data["image"][1:]
+            image = images_serializer.data["image"][1:]
             
             #获得图片名称
             dir_path,full_file_name = os.path.split(image)
@@ -88,8 +88,29 @@ class PostView(APIView):
             print('error', posts_serializer.errors)
             return Response(posts_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+#表格数据预测
+class SheetUploadView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
 
+    def get(self, request, *args, **kwargs):
+        sheets = SheetUpload.objects.all()
+        serializer = SheetUploadSerializer(sheets, many=True)
+        return Response(serializer.data)
 
+    def post(self, request, *args, **kwargs):
+        sheets_serializer = SheetUploadSerializer(data=request.data)
+        if sheets_serializer.is_valid():
+            #保存到数据库
+            sheets_serializer.save()
+            
+            #获得表格
+            sheet = sheets_serializer.data["sheet"][1:]
+            
+   
+            return Response(sheets_serializer.data)
+        else:
+            print('error',sheets_serializer.errors)
+            return Response(sheets_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 

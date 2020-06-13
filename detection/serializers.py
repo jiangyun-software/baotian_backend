@@ -1,9 +1,14 @@
 from rest_framework import serializers
-from .models import Post, ImageUpload
+from .models import ImageUpload,SheetUpload,AnnotationImage
 
-class PostSerializer(serializers.ModelSerializer):
+class AnnotaionImageSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Post
+        model = AnnotationImage
+        fields = '__all__'
+
+class SheetUploadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SheetUpload
         fields = '__all__'
 
 class ImageUploadSerializer(serializers.ModelSerializer):
