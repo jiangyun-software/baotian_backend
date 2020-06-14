@@ -1,4 +1,4 @@
-from .serializers import ImageUploadSerializer,SheetUploadSerializer,AnnotaionImageSerializer
+from .serializers import ImageUploadSerializer,SheetUploadSerializer,AnnotationImageSerializer
 from .models import AnnotationImage,ImageUpload,SheetUpload
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
