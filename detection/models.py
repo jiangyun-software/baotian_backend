@@ -23,5 +23,6 @@ class ImageUpload(models.Model):
     title = models.CharField(max_length=100)
     file_size = models.CharField(max_length=100)
     image = models.FileField(upload_to='upload_images')
+    side = models.CharField(max_length=10)
     def __str__(self):
         return self.title
