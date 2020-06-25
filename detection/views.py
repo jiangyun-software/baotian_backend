@@ -5,17 +5,14 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework import status
 import os
-# Create your views here.
 from .sift_match import img_boundary_match
 from django.http import JsonResponse,HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from pprint import pprint
 import json
 from .output_json import to_txt_files 
 
-
+#服务器地址
 server_url = "http://jyzn.nat300.top/"
-annotation_path = './media/annotations/'
 
 #返回简单的test字符串，用于测试服务器是否成功运行
 def test(request):
@@ -24,6 +21,7 @@ def test(request):
 #接受标注数据,以文件名为单位存为一个个单独的文件在/media/annotations/
 @csrf_exempt
 def annotation(request):
+    annotation_path = './media/annotations/'
     if request.method=="POST":
         res = request.FILES['file']
         res = res.read().decode('utf8')
@@ -31,7 +29,7 @@ def annotation(request):
         to_txt_files(res,annotation_path)
     return HttpResponse("成功上传标记数据到"+server_url)
 
-#接受标注图片，若在数据库中不存在，则将图片存入/media/annotation_images/,将图片信息存入数据库
+#接收标注图片，若在数据库中不存在，则将图片存入/media/annotation_images/,将图片信息存入数据库
 class AnnotationImageView(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
@@ -65,7 +63,6 @@ sides_data = {
     "6H":{"start_point":(250,120),"end_point":(1000,300),"template":"detection/templates/right_6H.png","min_count":10},
 }
 
-
 #接受上传图片，并调用定位算法
 class ImageUploadView(APIView):
     parser_classes = (MultiPartParser, FormParser)
@@ -77,6 +74,8 @@ class ImageUploadView(APIView):
     
     def post(self, request, *args, **kwargs):
         images_serializer = ImageUploadSerializer(data=request.data)
+        #判断上传图片是否已经存在，只保存数据库中不存在的图片
+        #!需要再增加一个size判断
         if images_serializer.is_valid():
             if ImageUpload.objects.filter(title=images_serializer.validated_data["title"]).exists():
                 print(images_serializer.validated_data["title"])
@@ -120,7 +119,7 @@ class SheetUploadView(APIView):
             print('error',sheets_serializer.errors)
             return Response(sheets_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+ 
 
 
 
