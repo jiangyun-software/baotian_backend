@@ -55,12 +55,12 @@ class AnnotationImageView(APIView):
 
 #零件每个面对所对应的不同数据参数
 sides_data = {
-    "1H":{"start_point":(300,190),"end_point":(1150,425),"template":"detection/templates/right.png","min_count":4},
-    "2H":{"start_point":(300,180),"end_point":(1400,500),"template":"detection/templates/right_new.png","min_count":4},
-    "3H":{"start_point":(300,160),"end_point":(1050,315),"template":"detection/templates/right_3H.png","min_count":4},
-    "4H":{"start_point":(170,160),"end_point":(1000,420),"template":"detection/templates/right.png","min_count":4},
-    "5H":{"start_point":(250,210),"end_point":(930,420),"template":"detection/templates/right_5H.png","min_count":4},
-    "6H":{"start_point":(250,120),"end_point":(1000,300),"template":"detection/templates/right_6H.png","min_count":10},
+    "1H":{"start_point":(303,193),"end_point":(1146,420),"template":"detection/templates/Template_1H.png","min_count":4},
+    "2H":{"start_point":(276,172),"end_point":(1413,489),"template":"detection/templates/Template_2H.png","min_count":4},
+    "3H":{"start_point":(292,147),"end_point":(1020,323),"template":"detection/templates/Template_3H.png","min_count":4},
+    "4H":{"start_point":(172,164),"end_point":(987,379),"template":"detection/templates/Template_4H.png","min_count":4},
+    "5H":{"start_point":(270,221),"end_point":(916,397),"template":"detection/templates/Template_5H.png","min_count":4},
+    "6H":{"start_point":(245,131),"end_point":(982,289),"template":"detection/templates/Template_6H.png","min_count":10},
 }
 
 #接受上传图片，并调用定位算法
@@ -85,10 +85,11 @@ class ImageUploadView(APIView):
             #定义输入图片的路径与输出图片的文件夹
             input_path = os.path.join("media/upload_images/",images_serializer.validated_data["title"])
             save_path = "media/sift_images/"
+            cropped_path  = "media/sift_cropped_images"
 
             #调用培训好的算法
             side = images_serializer.validated_data["side"] #判断是哪一个面
-            datas,sift_imag =img_boundary_match(input_path,save_path,sides_data[side]["template"],sides_data[side]["start_point"],sides_data[side]["end_point"],sides_data[side]["min_count"])
+            sift_imag =img_boundary_match(input_path,save_path,cropped_path,sides_data[side]["template"],sides_data[side]["start_point"],sides_data[side]["end_point"],sides_data[side]["min_count"])
             
             #打开图片并返回
             with open(sift_imag, 'rb') as f:
