@@ -1,9 +1,9 @@
-detection/hololens/
-*/__pycache__/*
+*/__pycache__
 media/output_images/*
 media/upload_images/*
 media/annotations/*
 media/annotation_images/*
 media/sift_images/*
+media/sift_cropped_images/*
 .vscode
 
