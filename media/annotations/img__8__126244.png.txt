@@ -1,0 +1,1 @@
+{"filename": "img__8__126244.png", "size": 126244, "regions": [{"shape_attributes": {"name": "rect", "x": 150, "y": 185, "width": 34, "height": 13}, "region_attributes": {}}], "file_attributes": {}}
