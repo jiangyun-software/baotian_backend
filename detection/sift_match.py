@@ -149,7 +149,7 @@ def img_boundary_match(file_path,save_path,cropped_path,template_path,start_poin
             cv2.imwrite(save_path_crop, img3)
             return (save_path_crop)
         """
-        return (save_path_locate)
+        return (save_path_locate,save_path_crop)
 
     print("for loop complete!!!!!!!!!!!")
     

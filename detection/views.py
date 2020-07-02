@@ -10,6 +10,7 @@ from django.http import JsonResponse,HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from .output_json import to_txt_files 
+from .web_predict.predict_defect import defect_predict
 
 #服务器地址
 server_url = "http://jyzn.nat300.top/"
@@ -87,12 +88,16 @@ class ImageUploadView(APIView):
             save_path = "media/sift_images/"
             cropped_path  = "media/sift_cropped_images"
 
-            #调用培训好的算法
+            #调用培训好的定位算法
             side = images_serializer.validated_data["side"] #判断是哪一个面
-            sift_imag =img_boundary_match(input_path,save_path,cropped_path,sides_data[side]["template"],sides_data[side]["start_point"],sides_data[side]["end_point"],sides_data[side]["min_count"])
+            sift_img,croped_img =img_boundary_match(input_path,save_path,cropped_path,sides_data[side]["template"],sides_data[side]["start_point"],sides_data[side]["end_point"],sides_data[side]["min_count"])
             
+            #调用培训好的检测算法
+            sift_img = os.path.join('/usr/src/app',sift_img)
+            defect_predict(sift_img,"checkp/model.ckpt","media/detection_images/test.png")
+
             #打开图片并返回
-            with open(sift_imag, 'rb') as f:
+            with open("media/detection_images/test.png", 'rb') as f:
                 image_data = f.read()
             return HttpResponse(image_data, content_type="image/png")
         else:
