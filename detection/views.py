@@ -92,12 +92,16 @@ class ImageUploadView(APIView):
             side = images_serializer.validated_data["side"] #判断是哪一个面
             sift_img,croped_img =img_boundary_match(input_path,save_path,cropped_path,sides_data[side]["template"],sides_data[side]["start_point"],sides_data[side]["end_point"],sides_data[side]["min_count"])
             
-            #调用培训好的检测算法
+            present_path,filename = os.path.split(sift_img)
+            filename,extension = os.path.splitext(filename)
+            detection_img_path = os.path.join('media/detection_images',filename+'_predicted.png')
+
+            #调用培训好的缺陷检测算法
             sift_img = os.path.join('/usr/src/app',sift_img)
-            defect_predict(sift_img,"checkp/model.ckpt","media/detection_images/test.png")
+            defect_predict(sift_img,"checkp/model.ckpt",detection_img_path)
 
             #打开图片并返回
-            with open("media/detection_images/test.png", 'rb') as f:
+            with open(detection_img_path, 'rb') as f:
                 image_data = f.read()
             return HttpResponse(image_data, content_type="image/png")
         else:
