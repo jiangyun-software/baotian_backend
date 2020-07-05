@@ -106,23 +106,27 @@ def img_boundary_match(file_path,save_path,cropped_path,template_path,start_poin
             M_new = cv2.getAffineTransform(dst_pts_new, src_pts_new)
 
             affined_image = cv2.warpAffine(detect_image, M_new, (detect_image.shape[1], detect_image.shape[0]))
-            affined_image_bb = cv2.rectangle(affined_image, (start_point[0], start_point[1]), (end_point[0], end_point[1]), (255,255,255), 2)
+            
             #1H: (303, 193), (1146, 420)
             #2H: (276, 172), (1413, 489)
             #3H: (292, 147),  (1020, 323)
             #4H: (172, 164)， (987, 379)
             #5H: (270, 221)， (916, 397)
             #6H: (245, 131), (982, 289)
-            affined_image_crop = affined_image_bb[start_point[1]:end_point[1],start_point[0]:end_point[0]] #2H: (303, 191), (1383, 470)
-            
+
+            #剪裁部分代码
+            #affined_image_bb = cv2.rectangle(affined_image, (start_point[0], start_point[1]), (end_point[0], end_point[1]), (255,255,255), 2)
+            #affined_image_crop = affined_image_bb[start_point[1]:end_point[1],start_point[0]:end_point[0]] #2H: (303, 191), (1383, 470)
+            #save_path_crop = os.path.join(cropped_path,filename+'cropped.png')
+            #cv2.imwrite(save_path_crop, affined_image_crop)  
             #定义输出路径
             present_path,filename = os.path.split(file_path)
             filename,extension = os.path.splitext(filename)
             save_path_locate = os.path.join(save_path,filename+'result.png')
-            save_path_crop = os.path.join(cropped_path,filename+'cropped.png')
+            
 
-            cv2.imwrite(save_path_locate, affined_image_bb)   
-            cv2.imwrite(save_path_crop, affined_image_crop)  
+            cv2.imwrite(save_path_locate, affined_image)   
+            
             
 
         else:
@@ -149,7 +153,7 @@ def img_boundary_match(file_path,save_path,cropped_path,template_path,start_poin
             cv2.imwrite(save_path_crop, img3)
             return (save_path_crop)
         """
-        return (save_path_locate,save_path_crop)
+        return (save_path_locate) #save_path_locate
 
     print("for loop complete!!!!!!!!!!!")
     

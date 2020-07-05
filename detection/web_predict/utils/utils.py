@@ -221,12 +221,12 @@ def defect_crop(image, label_image, windowSize, threshold):
     return list_croped_image, list_croped_label
 
 
-def center_crop(image, windowSize, threshold):
+def center_crop(image, windowSize, threshold, x_list, y_list):
     list_croped_image = []
     list_name_index=[]
-    x_list=[64,192,320,448,576,704,832,960,1088,1216]
-    #y_list=[64,188,316,436]
-    y_list=[180,308,436]
+    # x_list=[64,192,320,448,576,704,832,960,1088,1216]
+    # #y_list=[64,188,316,436]
+    # y_list=[180,308,436]
     numx=0
     numy=0
     for x in x_list:
@@ -235,21 +235,21 @@ def center_crop(image, windowSize, threshold):
         for y in y_list:
             numy+=1
             list_croped_image.append(cv2.resize(image[y- (int)(1/2 * windowSize) : y + (int)(1/2 * windowSize),
-                                    x - (int)(1/2 * windowSize) : x + (int)(1/2 * windowSize)], (256,256)))
+                                    x - (int)(1/2 * windowSize) : x + (int)(1/2 * windowSize)], (512,512)))
             list_name_index.append((numx,numy))
             
     return list_croped_image, list_name_index
 
-def whole_crop(image, label_image, windowSize, threshold):
+def whole_crop(image, label_image, windowSize, threshold, x_list, y_list):
     list_croped_image = []
     list_croped_label = []
     gray = cv2.cvtColor(label_image, cv2.COLOR_BGR2GRAY)
-    ret, thresh = cv2.threshold(gray, threshold, 255, cv2.THRESH_BINARY)
-    _, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    #ret, thresh = cv2.threshold(gray, threshold, 255, cv2.THRESH_BINARY)
+    #_, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     list_name_index=[]
-    x_list=[64,192,320,448,576,704,832]
+    # x_list=[128,384,640]
     #y_list=[64,188,316,436]
-    y_list=[64,192]
+    # y_list=[128]
     numx=0
     numy=0
     for x in x_list:
@@ -258,9 +258,9 @@ def whole_crop(image, label_image, windowSize, threshold):
         for y in y_list:
             numy+=1
             list_croped_image.append(cv2.resize(image[y- (int)(1/2 * windowSize) : y + (int)(1/2 * windowSize),
-                                    x - (int)(1/2 * windowSize) : x + (int)(1/2 * windowSize)], (256,256)))
+                                    x - (int)(1/2 * windowSize) : x + (int)(1/2 * windowSize)], (512,512)))
             list_croped_label.append(cv2.resize(label_image[y - (int)(1/2 * windowSize) : y + (int)(1/2 * windowSize),
-                                          x - (int)(1/2 * windowSize) : x + (int)(1/2 * windowSize)], (256,256)))
+                                          x - (int)(1/2 * windowSize) : x + (int)(1/2 * windowSize)], (512,512)))
             list_name_index.append((numx,numy))
             
     return list_croped_image, list_croped_label, list_name_index

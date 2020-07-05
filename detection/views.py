@@ -1,5 +1,5 @@
-from .serializers import ImageUploadSerializer,SheetUploadSerializer,AnnotationImageSerializer
-from .models import AnnotationImage,ImageUpload,SheetUpload
+from .serializers import ImageUploadSerializer,SheetUploadSerializer,AnnotationImageSerializer,CroppedImageUploadSerializer
+from .models import AnnotationImage,ImageUpload,SheetUpload,CroppedImageUpload
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
@@ -90,23 +90,62 @@ class ImageUploadView(APIView):
 
             #调用培训好的定位算法
             side = images_serializer.validated_data["side"] #判断是哪一个面
-            sift_img,croped_img =img_boundary_match(input_path,save_path,cropped_path,sides_data[side]["template"],sides_data[side]["start_point"],sides_data[side]["end_point"],sides_data[side]["min_count"])
+            sift_img =img_boundary_match(input_path,save_path,cropped_path,sides_data[side]["template"],sides_data[side]["start_point"],sides_data[side]["end_point"],sides_data[side]["min_count"])
             
+            #定义缺陷预测图片储存位置
             present_path,filename = os.path.split(sift_img)
             filename,extension = os.path.splitext(filename)
             detection_img_path = os.path.join('media/detection_images',filename+'_predicted.png')
 
             #调用培训好的缺陷检测算法
-            sift_img = os.path.join('/usr/src/app',sift_img)
-            defect_predict(sift_img,"checkp/model.ckpt",detection_img_path)
+            #sift_img = os.path.join('/usr/src/app',sift_img)
+            #defect_predict(sift_img,"checkp/model.ckpt",detection_img_path)
 
-            #打开图片并返回
-            with open(detection_img_path, 'rb') as f:
+            #打开sift图片并返回
+            with open(sift_img, 'rb') as f:
                 image_data = f.read()
             return HttpResponse(image_data, content_type="image/png")
         else:
             print('error', images_serializer.errors)
             return Response(images_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class CroppedImageUploadView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+
+    def get(self, request, *args, **kwargs):
+        cropped_images = CroppedImageUpload.objects.all()
+        cropped_serializer = CroppedImageUploadSerializer(images, many=True)
+        return Response(cropped_serializer.data)
+    
+    def post(self, request, *args, **kwargs):
+        cropped_images_serializer = CroppedImageUploadSerializer(data=request.data)
+        #判断上传图片是否已经存在，只保存数据库中不存在的图片
+        #!需要再增加一个size判断
+        
+        if cropped_images_serializer.is_valid():
+            cropped_img = os.path.join("/usr/src/app/media/sift_cropped_images/",cropped_images_serializer.validated_data["title"])
+            if CroppedImageUpload.objects.filter(title=cropped_images_serializer.validated_data["title"]).exists():
+                pass
+                #os.remove(cropped_img)
+            cropped_images_serializer.save()
+            
+            #定义输入图片的路径与输出图片的文件夹
+            
+
+            #定义缺陷预测图片储存位置
+            filename,extension = os.path.splitext(cropped_images_serializer.validated_data["title"])
+            detection_img_path = os.path.join('/usr/src/app/media/detection_images',filename+'_predicted.png')
+
+            #调用培训好的缺陷检测算法
+            defect_predict(cropped_img,"checkp/model.ckpt",detection_img_path)
+
+            #打开sift图片并返回
+            with open(detection_img_path, 'rb') as f:
+                image_data = f.read()
+            return HttpResponse(image_data, content_type="image/png")
+        else:
+            print('error', cropped_images_serializer.errors)
+            return Response(cropped_images_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 #接收表格数据
 class SheetUploadView(APIView):

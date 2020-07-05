@@ -10,6 +10,17 @@ import sys
 
 
 def defect_predict(input_path, model_path, output_path):
+    Size_scaled_h=512
+    Re_size_h=256
+    N_crop=4
+    window_size=256
+    Re_size_w=N_crop*Re_size_h
+    Size_scaled_w=N_crop*Size_scaled_h
+    window_size=256
+    x_list=[window_size*i//2 for i in np.arange(1,2*N_crop,2)]
+    y_list=[window_size//2]
+
+    #arguments
     os.chdir("detection/web_predict")
     parser = argparse.ArgumentParser()
     parser.add_argument('--image', type=str, default=input_path, required=False, help='The image you want to predict on. ')
@@ -19,9 +30,17 @@ def defect_predict(input_path, model_path, output_path):
     parser.add_argument('--model', type=str, default='MobileUNet', required=False, help='The model you are using')
     parser.add_argument('--dataset', type=str, default="AOI", required=False, help='The dataset you are using')
     args = parser.parse_known_args()[0]
+
     class_names_list, label_values = helpers.get_label_info("class_dict.csv")
     num_classes = len(label_values)
     print("\n***** Begin prediction *****")
+    print("Dataset -->", args.dataset)
+    print("Model -->", args.model)
+    print("Crop Height -->", args.crop_height)
+    print("Crop Width -->", args.crop_width)
+    print("Num Classes -->", num_classes)
+    print("Image -->", args.image)
+
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
     sess=tf.Session(config=config)
@@ -34,11 +53,22 @@ def defect_predict(input_path, model_path, output_path):
                                             is_training=False)
 
     sess.run(tf.global_variables_initializer())
+    print('Loading model checkpoint weights')
     saver=tf.train.Saver(max_to_keep=1000)
     saver.restore(sess, model_path)
-    loaded_image = utils.load_image(input_path)
-    image_list, index_list = utils.center_crop(loaded_image, 128, 1)
-    vis=np.zeros((768,2560,3))
+
+
+    #predict image
+    loaded_image = utils.load_color_image(input_path)
+    load_img_h, load_img_w, load_img_c = loaded_image.shape
+    print("Testing image " + input_path)
+
+
+    image_list, index_list = utils.center_crop(loaded_image, window_size, 1, x_list, y_list)
+    print(index_list)
+
+    vis=np.zeros((Size_scaled_h,Size_scaled_w,3))
+    vis_raw=np.zeros((Size_scaled_h,Size_scaled_w,3))
     for j in range(len(image_list)):
            
         input_image = np.expand_dims(np.float32(image_list[j][:args.crop_height, :args.crop_width]),axis=0)/255.0
@@ -53,7 +83,7 @@ def defect_predict(input_path, model_path, output_path):
         vis[(y_val-1)*256:y_val*256,(x_val-1)*256:x_val*256]=out_image
 
     os.chdir("/usr/src/app")
-    cv2.imwrite(output_path,cv2.cvtColor(cv2.resize(np.uint8(vis),(1280,384)), cv2.COLOR_RGB2BGR))
+    cv2.imwrite(output_path,cv2.cvtColor(cv2.resize(np.uint8(vis),(load_img_w,load_img_h)),cv2.COLOR_RGB2BGR))
     print("done")
     
 
