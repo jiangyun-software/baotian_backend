@@ -13,7 +13,7 @@ from .output_json import to_txt_files
 from .web_predict.predict_defect import defect_predict
 
 #服务器地址
-server_url = "http://jyzn.nat300.top/"
+server_url = "http://121.37.23.147:8004/"
 
 #返回简单的test字符串，用于测试服务器是否成功运行
 def test(request):
