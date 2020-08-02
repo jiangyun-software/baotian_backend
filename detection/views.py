@@ -5,12 +5,13 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework import status
 import os
+import shutil
 from .sift_match import img_boundary_match
 from django.http import JsonResponse,HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from .output_json import to_txt_files 
-from .web_predict.predict_defect import defect_predict
+from .yolo_detect import predict
 
 #服务器地址
 server_url = "http://121.37.23.147:8004/"
@@ -56,6 +57,7 @@ class AnnotationImageView(APIView):
 
 #零件每个面对所对应的不同数据参数
 sides_data = {
+    "0H":{"start_point":(303,193),"end_point":(1146,420),"template":"detection/templates/Template_0H.png","min_count":10},
     "1H":{"start_point":(303,193),"end_point":(1146,420),"template":"detection/templates/Template_1H.png","min_count":4},
     "2H":{"start_point":(276,172),"end_point":(1413,489),"template":"detection/templates/Template_2H.png","min_count":4},
     "3H":{"start_point":(292,147),"end_point":(1020,323),"template":"detection/templates/Template_3H.png","min_count":4},
@@ -123,29 +125,44 @@ class CroppedImageUploadView(APIView):
         #!需要再增加一个size判断
         
         if cropped_images_serializer.is_valid():
-            cropped_img = os.path.join("/usr/src/app/media/sift_cropped_images/",cropped_images_serializer.validated_data["title"])
-            if CroppedImageUpload.objects.filter(title=cropped_images_serializer.validated_data["title"]).exists():
-                pass
-                #os.remove(cropped_img)
+            cropped_img = os.path.join("media/sift_cropped_images/",cropped_images_serializer.validated_data["title"])
             cropped_images_serializer.save()
-            
             #定义输入图片的路径与输出图片的文件夹
-            
-
-            #定义缺陷预测图片储存位置
-            filename,extension = os.path.splitext(cropped_images_serializer.validated_data["title"])
-            detection_img_path = os.path.join('/usr/src/app/media/detection_images',filename+'_predicted.png')
-
-            #调用培训好的缺陷检测算法
-            defect_predict(cropped_img,"checkp/model.ckpt",detection_img_path)
-
-            #打开sift图片并返回
-            with open(detection_img_path, 'rb') as f:
-                image_data = f.read()
-            return HttpResponse(image_data, content_type="image/png")
+        
+        
+        #将图片移动到子文件夹,因为yolo算法默认对整个文件夹里的图片都进行操作，我们把它放到子文件夹以保证它单独运行
+        filename,extension = os.path.splitext(cropped_images_serializer.validated_data["title"])
+        dir_path = os.path.join("media/sift_cropped_images/",filename) #子文件夹路径
+        if not os.path.exists(dir_path): #不存在子文件夹则创建新的子文件夹
+            os.mkdir(dir_path)
         else:
-            print('error', cropped_images_serializer.errors)
-            return Response(cropped_images_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            shutil.rmtree(dir_path) #存在则删掉再新建
+            os.mkdir(dir_path)
+        shutil.move(cropped_img,dir_path)
+        
+
+        #建立存放预测后照片的文件夹
+        detection_img_path = os.path.join('media/detection_images',filename+'_predicted')
+        if not os.path.exists(detection_img_path):
+            os.mkdir(detection_img_path)
+        else:
+            shutil.rmtree(detection_img_path) #存在则删掉再新建
+            os.mkdir(detection_img_path)
+
+        #调用培训好的缺陷检测算法
+        predict(dir_path,detection_img_path)
+
+        #获得预测后图片的图片路径
+        detection_filename = os.listdir(detection_img_path)[0]
+        detection_predict_path = os.path.join(detection_img_path,detection_filename)
+        #打开预测后图片并返回
+        with open(detection_predict_path, 'rb') as f:
+            image_data = f.read()
+        return HttpResponse(image_data, content_type="image/png")
+        return HttpResponse("succeed in yolo")
+    #else:
+    #    print('error', cropped_images_serializer.errors)
+    #    return Response(cropped_images_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 #接收表格数据
 class SheetUploadView(APIView):
